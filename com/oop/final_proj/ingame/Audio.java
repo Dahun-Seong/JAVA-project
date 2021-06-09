@@ -16,6 +16,7 @@ public class Audio {
             audioFile = new File(pathName);	// audioFile
             audioInputStream = AudioSystem.getAudioInputStream(audioFile);
             clip.open(audioInputStream);
+            clip.setFramePosition(0);
         } catch (LineUnavailableException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -25,8 +26,10 @@ public class Audio {
         }
     }
 
+    
+    
     public void start() {
-        clip.setFramePosition(0);
+    	
         clip.start();
         if (isLoop) clip.loop(Clip.LOOP_CONTINUOUSLY);
     }

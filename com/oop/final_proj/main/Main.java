@@ -19,8 +19,8 @@ import com.oop.final_proj.ingame.Audio;
 //이벤트 리스너들의 추상클래스인 listenAdaptor를 상속받는다.
 public class Main extends listenAdaptor {
 	public Audio backgroundMusic;
-	
-    public JFrame frame;
+	public Audio buttonClickSound;
+	public JFrame frame;
 
     /* 각 게임 화면에 대한 판넬 */
     private IntroPanel introPanel; // 인트로
@@ -106,8 +106,9 @@ public class Main extends listenAdaptor {
                 gamePanel.gameStart(); // 게임시작
                 gamePanel.requestFocus(); // 리스너를 gamePanel에 강제로 줌
             }*/
-
         	
+        	buttonClickSound = new Audio("src/audio/buttonClick.wav", false);
+        	buttonClickSound.start();
         	// 성다훈 : intro 음악 중단
             backgroundMusic.stop();
         	
@@ -118,6 +119,11 @@ public class Main extends listenAdaptor {
             gamePanel.requestFocus(); // 리스너를 gamePanel에 강제로 줌
 
         } else if (e.getComponent().getName().equals("endAccept")) { // 3. EndPanel의 endAccept 버튼을 눌렀다면
+        	
+        	//성다훈 : 버튼 클릭 효과음 추가
+        	buttonClickSound = new Audio("src/audio/buttonClick.wav", false);
+        	buttonClickSound.start();
+        	
             frame.getContentPane().remove(gamePanel); //기존의 GamePanel을 프레임에서 삭제
             gamePanel = new GamePanel(frame, cl, this); // GamePanel을 새 패널로 교체
             gamePanel.setLayout(null);

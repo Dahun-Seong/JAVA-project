@@ -27,6 +27,12 @@ public class GamePanel extends JPanel {
 	// 성다훈 : bgm 및 효과음 객체 생성
 	private Audio backgroundMusic;
     private Audio hitSound;
+    private Audio slidingSound;
+    private Audio jumpSound;
+    private Audio eatItem1Sound;
+    private Audio eatItem2Sound;
+    private Audio gameoverSound;
+    private Audio buttonClickSound;
     
     // 쿠키 이미지 아이콘들
     ImageIcon cookieIc, jumpIc, doubleJumpIc, fallIc, slideIc, hitIc;
@@ -122,14 +128,19 @@ public class GamePanel extends JPanel {
         this.cl = cl;
         this.main = (Main) o;
 
+         
+        
         //일시정지 버튼 (ESC 키를 누르면 생기게 되는 버튼)
         escButton = new JButton("back");
         escButton.setBounds(350, 200, 100, 30);
         escButton.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseClicked(MouseEvent e) {
+            public void mouseClicked(MouseEvent e) { // back버튼 클릭하면 이벤트 발생
+            	buttonClickSound = new Audio("src/audio/buttonClick.wav", false);
+            	buttonClickSound.start();
                 remove(escButton);
                 escKeyOn = false;
+                backgroundMusic.start();			// 성다훈: 배경음악 다시 재생
             }
         });
     }
@@ -145,7 +156,7 @@ public class GamePanel extends JPanel {
         runRepaint(); // 리페인트 무한반복 실행
         
         // 성다훈 : 배경음악 재생
-        backgroundMusic = new Audio("src/audio/sm_place1.wav", false);
+        backgroundMusic = new Audio("src/audio/sm_place1.wav", true);
         backgroundMusic.start();
     }
 
@@ -412,9 +423,11 @@ public class GamePanel extends JPanel {
                         escKeyOn = true;
                         add(escButton);
                         repaint(); // 화면을 어둡게 하기위한 리페인트
+                        backgroundMusic.stop();			// 성다훈: 배경음악도 일시정지
                     } else {
                         remove(escButton);
                         escKeyOn = false;
+                        backgroundMusic.start();			// 성다훈: 배경음악 이어서 다시 재생
                     }
                 }
 
@@ -428,13 +441,15 @@ public class GamePanel extends JPanel {
                     if (e.getKeyCode() == KeyEvent.VK_DOWN) { // 다운키를 눌렀을 때
                         //slideBtn = slideIconDown.getImage();  //삭제 가능
                         downKeyOn = true; // downKeyOn 변수를 true로
-
                         if (c1.getImage() != slideIc.getImage() // 쿠키이미지가 슬라이드 이미지가 아니고
                                 && !c1.isJump() // 점프 중이 아니며
                                 && !c1.isFall()) { // 낙하 중도 아닐 때
 
                             c1.setImage(slideIc.getImage()); // 이미지를 슬라이드이미지로 변경
-
+                            
+                            // 성다훈 : 슬라이딩 효과음 추가
+                            slidingSound = new Audio("src/audio/sliding.wav", false);
+                            slidingSound.start();
                         }
                     }
                 }
@@ -514,10 +529,15 @@ public class GamePanel extends JPanel {
                     if (foot > 1999 || c1.getHealth() < 1) {
                         main.getEndPanel().setResultScore(resultScore);
                         cl.show(superFrame.getContentPane(), "end");
+                        
                         backgroundMusic.stop();		// 성다훈 : 게임 배경 음악도 종료
                         main.setGamePanel(new GamePanel(superFrame, cl, main));
                         superFrame.requestFocus();
                         escKeyOn = true;
+                        
+                     // 성다훈 : 방해물 부딪히는 효과음 추가
+                        gameoverSound = new Audio("src/audio/gameover.wav", false);
+                        gameoverSound.start();
                     }
 
                     // 배경 이미지 변경
@@ -661,9 +681,17 @@ public class GamePanel extends JPanel {
                                             && tempJelly.getY() + tempJelly.getWidth() * 20 / 100 >= c1.getY()
                                             && tempJelly.getY() + tempJelly.getWidth() * 80 / 100 <= foot
                                             && tempJelly.getImage() != jellyEffectIc.getImage()) {
-
+                            	
+                            	// 성다훈 : 아이템 먹는 효과음 추가
+                                eatItem1Sound = new Audio("src/audio/eatItem1.wav", false);
+                                eatItem1Sound.start();
+                                
                                 //물약 젤리를 먹은 경우 체력 만땅
                                 if (tempJelly.getImage() == jellyHPIc.getImage()) {
+                                	// 성다훈 : 아이템 먹는 효과음 추가
+                                    eatItem2Sound = new Audio("src/audio/eatItem2.wav", false);
+                                    eatItem2Sound.start();
+                                    
                                     if ((c1.getHealth() + 100) > 1000) {  //이미 체력이 많은 경우
                                         c1.setHealth(1000);  //그냥 체력 만땅
                                     } else {
@@ -681,6 +709,10 @@ public class GamePanel extends JPanel {
                                             + c1.getHeight() * 1 / 3
                                             && tempJelly.getY() + tempJelly.getWidth() * 80 / 100 <= foot
                                             && tempJelly.getImage() != jellyEffectIc.getImage()) {
+                            	
+                            	// 성다훈 : 아이템 먹는 효과음 추가
+                                eatItem1Sound = new Audio("src/audio/eatItem1.wav", false);
+                                eatItem1Sound.start();
 
                                 if (tempJelly.getImage() == jellyHPIc.getImage()) {
                                     if ((c1.getHealth() + 100) > 1000) {
@@ -716,6 +748,10 @@ public class GamePanel extends JPanel {
                                             && tempTacle.getY() + tempTacle.getHeight() / 2 <= foot) {
 
                                 hit(); // 피격 + 무적 쓰레드 메서드
+                                
+                             // 성다훈 : 방해물 부딪히는 효과음 추가
+                                hitSound = new Audio("src/audio/hit.wav", false);
+                                hitSound.start();
 
                             } else if ( // 슬라이딩 아닐시 공중장애물
                                     !c1.isInvincible() && c1.getImage() != slideIc.getImage()
@@ -725,8 +761,12 @@ public class GamePanel extends JPanel {
                                             && tempTacle.getY() + tempTacle.getHeight() * 95 / 100 > c1.getY()) {
 
                                 hit(); // 피격 + 무적 쓰레드 메서드
+                                
+                             // 성다훈 : 방해물 부딪히는 효과음 추가
+                                hitSound = new Audio("src/audio/hit.wav", false);
+                                hitSound.start();
 
-                            } else if ( // 무적상태가 아니고 슬라이드 중이며 캐릭터의 범위 안에 장애물이 있으면 부딛힌다
+                            } else if ( // 무적상태가 아니고 슬라이드 중이며 캐릭터의 범위 안에 장애물이 있으면 부딪힌다
                                     !c1.isInvincible() && c1.getImage() == slideIc.getImage()
                                             && tempTacle.getX() + tempTacle.getWidth() / 2 >= c1.getX()
                                             && tempTacle.getX() + tempTacle.getWidth() / 2 <= face
@@ -735,6 +775,10 @@ public class GamePanel extends JPanel {
                                             && tempTacle.getY() + tempTacle.getHeight() / 2 <= foot) {
 
                                 hit(); // 피격 + 무적 쓰레드 메서드
+                                
+                             // 성다훈 : 방해물 부딪히는 효과음 추가
+                                hitSound = new Audio("src/audio/hit.wav", false);
+                                hitSound.start();
 
                             } else if ( // 슬라이딩시 공중장애물
                                     !c1.isInvincible() && c1.getImage() == slideIc.getImage()
@@ -744,6 +788,10 @@ public class GamePanel extends JPanel {
                                             + tempTacle.getHeight() * 95 / 100 > c1.getY() + c1.getHeight() * 2 / 3) {
 
                                 hit(); // 피격 + 무적 쓰레드 메서드
+                                
+                             // 성다훈 : 방해물 부딪히는 효과음 추가
+                                hitSound = new Audio("src/audio/hit.wav", false);
+                                hitSound.start();
                             }
                         }
                     }
@@ -960,6 +1008,9 @@ public class GamePanel extends JPanel {
 
     /* 점프 메서드 */
     private void jump() {
+    	// 성다훈 : 점프 효과음 재생
+        jumpSound = new Audio("src/audio/jump.wav", false);
+        jumpSound.start();
         new Thread(new Runnable() {
             @Override
             public void run() {
